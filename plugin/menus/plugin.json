@@ -1,22 +1,18 @@
 {
-  "context-menu": {
-    "atom-text-editor": [
-      {
-        "label": "Toggle plugin",
-        "command": "plugin:toggle"
-      }
-    ]
-  },
   "menu": [
     {
       "label": "Packages",
       "submenu": [
         {
-          "label": "plugin",
+          "label": "Collaboration",
           "submenu": [
             {
-              "label": "Toggle",
-              "command": "plugin:toggle"
+              "label": "Host project",
+              "command": "plugin:host"
+            },
+            {
+              "label": "Stop hosting",
+              "command": "plugin:stop"
             }
           ]
         }

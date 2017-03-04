@@ -1,5 +1,5 @@
 {
   "atom-workspace": {
-    "ctrl-alt-o": "plugin:toggle"
+    "ctrl-alt-h": "plugin:host"
   }
 }
