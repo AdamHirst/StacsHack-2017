@@ -1,0 +1,26 @@
+{
+  "context-menu": {
+    "atom-text-editor": [
+      {
+        "label": "Toggle plugin",
+        "command": "plugin:toggle"
+      }
+    ]
+  },
+  "menu": [
+    {
+      "label": "Packages",
+      "submenu": [
+        {
+          "label": "plugin",
+          "submenu": [
+            {
+              "label": "Toggle",
+              "command": "plugin:toggle"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
