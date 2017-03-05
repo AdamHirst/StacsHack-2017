@@ -27,6 +27,14 @@ module.exports = {
         return null
     },
 
+    fileUpdated : function(sessionId, fileData) {
+        // Always keep track of the previous edit to allow for new cursor 
+        // positions to be updated later on 
+        session = getSessionById(sessionId)
+        session["prevFileData"] = session.fileData
+        session.fileData = fileData
+    },
+
     // Adds a user to a session.
     // Note that this function completly ignores any authentication requirements on the server.
     // To use authentication, then use addUserToAuthenticatedSession instead
