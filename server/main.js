@@ -21,6 +21,7 @@ function update(socket, sessionId) {
 	}
 	console.log("broadcasting update to group: " + sessionId);
 	socket.broadcast.to(sessionId).emit("update", data);
+	socket.emit("update", data);
 }
 
 io.on("connection", function(socket) {
