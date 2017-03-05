@@ -71,9 +71,9 @@ io.on("connection", function(socket) {
 	});
 
 	//when client sends an update
-	socket.on("update", function(client) {
+	socket.on("update", function(update) {
 		console.log("received request event from socket (" + socket.id + ")");
-		console.log(client);
+		console.log(update);
 		var cursor = update.cursor;
 		var selection = update.selection;
 		var user = update.username;
