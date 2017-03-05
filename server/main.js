@@ -19,13 +19,13 @@ io.on("connection", function(socket) {
 			session.addUserToSession(client.sessionId, user);
 			sessionId = client.sessionId;
 		} else
-			sessionId = session.createNewSession(user, filename, passwd);
+			sessionId = session.createNewSession(user, filename, "", passwd);
 		//add this client to the group defined by the session id
 		socket.join(sessionId)
-		return {
+		socket.emit('register_response', {
 			"sessionId": sessionId,
 			"username": user,
-		}
+		});
 	});
 
 	socket.on("deregister", function(client) {
@@ -61,8 +61,8 @@ io.on("connection", function(socket) {
 			}
 			socket.broadcast.to(s.id).emit("update", data);
 		}
-		return null;
-	})
+		//return null;
+	});
 });
 
 http.listen(3000, function() {

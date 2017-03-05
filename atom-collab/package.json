@@ -1,10 +1,10 @@
 {
-  "name": "atom-collab",
+  "name": "atom-neutrino",
   "main": "./lib/plugin",
   "version": "0.0.0",
-  "description": "A short description of your package",
+  "description": "Real-time collaboration for Atom",
   "keywords": [],
-  "repository": "https://github.com/atom/plugin",
+  "repository": "https://github.com/AdamHirst/neutrino",
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"

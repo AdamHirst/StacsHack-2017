@@ -4,15 +4,23 @@
       "label": "Packages",
       "submenu": [
         {
-          "label": "Collaboration",
+          "label": "Neutrino",
           "submenu": [
             {
-              "label": "Host project",
-              "command": "plugin:host"
+              "label": "Host session",
+              "command": "neutrino:host"
             },
             {
-              "label": "Stop hosting",
-              "command": "plugin:stop"
+              "label": "Stop session",
+              "command": "neutrino:stop"
+            },
+            {
+              "label": "Join session",
+              "command": "neutrino:join"
+            },
+            {
+              "label": "Leave session",
+              "command": "neutrino:leave"
             }
           ]
         }
