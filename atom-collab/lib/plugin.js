@@ -14,6 +14,7 @@ export default {
   joinView: null,
   joinModalPanel: null,
   editor: null,
+  sessionId: null,
 
   activate(state) {
     this.editorView = new EditorView(state.editorViewState);
@@ -57,6 +58,7 @@ export default {
     this.socket.emit('update', {
       fileData: this.editor.getText(),
       username: this.username,
+      sessionId: this.sessionId,
       cursor: {
         row: this.editor.getCursorScreenPosition().row,
         col: this.editor.getCursorScreenPosition().col,
@@ -87,10 +89,15 @@ export default {
     // Initiate the socket
     this.socket = require('socket.io-client')("http://localhost:3000/");
 
+    // Setup text editor
+    initiateEditorAsContext();
+
     // The data to send to the server
     var data = {
         desiredUsername: "Bob",
-        fileName: "hello"
+        fileName: "",
+        password: "",
+        fileData: this.editor.getText(),
     };
 
     this.socket.on('connection', function() {
@@ -98,19 +105,19 @@ export default {
     });
 
     this.socket.on('register_response', function(d) {
-      var sessionId = d.sessionId;
+      this.sessionId = d.sessionId;
       this.username = d.username;
 
       atom.notifications.addSuccess("Success! Send this code to collaborators:",
       {
           dismissable: true,
           description: "Collaborators can join the session by navigating to \"Packages > Neutrino > Join Session...\" and entering the code above.",
-          detail: sessionId,
+          detail: this.sessionId,
           buttons: [
               {
                   text: "Copy",
                   onDidClick: function() {
-                      atom.clipboard.write(sessionId);
+                      atom.clipboard.write(this.sessionId);
                   }
               },
               {
@@ -122,9 +129,6 @@ export default {
               }
           ]
       });
-
-      // Setup text editor
-      initiateEditorAsContext();
       //this.editor = atom.
     });
 
@@ -152,13 +156,25 @@ export default {
 
   // Handles joining a session
   connectToSession(id, username) {
+    this.sessionId = id;
+    this.username = username;
+
     // Close the panel
     this.joinModalPanel.hide();
 
     // Initiate socket
     this.socket = require('socket.io-client')("http://localhost:3000/");
 
+    // Server does not implement error handling at all, so we implicitly assume the connection is valid
+    //this.socket.on('')
+
     // Open connection
+    this.socket.open();
+
+    this.socket.emit('join', {
+      sessionId: id,
+      desiredUsername: username
+    });
   },
 
   leaveSession() {
