@@ -26,8 +26,25 @@ module.exports = {
         return null
     },
 
+    // Adds a user to a session.
+    // Note that this function completly ignores any authentication requirements on the server.
+    // To use authentication, then use addUserToAuthenticatedSession instead
     addUserToSession: function(sessionId, username) {
         this.getSessionById(sessionId).users.push({"username" : username})
+    },
+
+    // Only adds the user to the session if they have the correct password
+    // A boolean is returned to indicate the authentication status (true = success)
+    // If the session does not have a password set, then this function will add 
+    // the user to the session regardless of the plainPassword contents
+    addUserToAuthenticatedSession: function(sessionId, username, plainPassword) {
+        session = this.getSessionById(sessionId)
+        if (session["password"] == undefined || this.validPassword(sessionId, plainPassword)) {
+            this.addUserToSession(sessionId, username)
+            return true;
+        }
+
+        return false
     },
 
     getUsernamesForSession: function(sessionId) {
@@ -35,7 +52,7 @@ module.exports = {
     },
 
     validPassword: function(sessionId, plainPassword) {
-        bcrypt.compareSync(plainPassword, this.getSessionById(sessionId).password)
+        return bcrypt.compareSync(plainPassword, this.getSessionById(sessionId).password)
     },
 
     setCursorAndSelectionPos: function(sessionId, username, cursorPos, selectionPos) {

@@ -12,5 +12,4 @@ io.on('connection', function(socket){
 });
     
 http.listen(3000, function(){
-    console.log(util.inspect(session.getSessionById(id), false, null))
 });
