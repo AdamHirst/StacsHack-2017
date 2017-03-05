@@ -19,18 +19,39 @@ io.on("connection", function(socket) {
 			sessionId = session.createNewSession(user, filename, passwd);
 		//add this client to the group defined by the session id
 		socket.join(sessionId)
-		return JSON.stringify({
+		return {
 			"sessionId": sessionId,
 			"username": user,
-		})
+		}
 	});
 	socket.on("deregister", function(client) {
 		//TODO more checking here
 		socket.leave(client.sessionId);
 	});
 	socket.on("request", function(client) {
-		for (s in session.sessions)
-			socket.broadcast.to(s.id).emit("update");
+		for (s in session.sessions) {
+			data = {"collaborators": []};
+			for (username in session.getUsernamesForSession(s.id)) {
+				data.collaborators[username] = {
+					"fileData": "you big ol' file, you!",
+					"cursor": {
+						"row": 0,
+						"col": 0,
+					},
+					"selection": {
+						"start": {
+							"row": 0,
+							"col": 0,
+						},
+						"end": {
+							"row": 0,
+							"col": 0,
+						},
+					},
+				};
+			}
+			socket.broadcast.to(s.id).emit("update", data);
+		}
 		return null;
 	})
 });
