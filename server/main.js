@@ -19,7 +19,7 @@ function update(socket, sessionId) {
 			"selection": selection,
 		});
 	}
-	socket.broadcast.to(s.id).emit("update", data);
+	socket.broadcast.to(sessionId).emit("update", data);
 }
 
 io.on("connection", function(socket) {
