@@ -34,8 +34,10 @@ io.on("connection", function(socket) {
 		var fileData = client.fileData;
 		var sessionId = session.createNewSession(user, filename, fileData, passwd);
 		//add this client to the group defined by the session id
-		socket.join(sessionId)
-		session.addUserToSession(sessionId, user)
+		socket.join(sessionId);
+		console.log("added socket " + socket.id + " to group " + sessionId);
+		console.log("peers in group: " + io.sockets.clients(sessionId));
+		session.addUserToSession(sessionId, user);
 		socket.emit("register_response", {
 			"sessionId": sessionId,
 			"username": user,
