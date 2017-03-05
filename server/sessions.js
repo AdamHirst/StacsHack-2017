@@ -56,6 +56,10 @@ module.exports = {
         return false
     },
 
+    getCurrentFileData: function(sessionId) {
+        return this.getSessionById(sessionId).fileData
+    },  
+
     getUsernamesForSession: function(sessionId) {
         this.getSessionById(sessionId).users
     },
