@@ -6,7 +6,10 @@ const util = require('util')
 
 io.on("connection", function(socket) {
 	console.log("user connected (socket ID " + socket.id + ")");
+
 	socket.on("register", function(client) {
+		console.log("received register event from socket (" + socket.id + ")");
+		console.log(client);
 		var user = client.desiredUsername;
 		var filename = client.fileName;
 		var passwd = client.password;
@@ -24,12 +27,18 @@ io.on("connection", function(socket) {
 			"username": user,
 		}
 	});
+
 	socket.on("deregister", function(client) {
 		//TODO more checking here
+		console.log("received deregister from socket (" + socket.id + ")");
 		socket.leave(client.sessionId);
 	});
+
 	socket.on("request", function(client) {
+		console.log("received request event from socket (" + socket.id + ")");
+		console.log(client);
 		for (s in session.sessions) {
+			console.log("broadcasting file data to session: " + s.id);
 			data = {"collaborators": []};
 			for (username in session.getUsernamesForSession(s.id)) {
 				data.collaborators[username] = {
