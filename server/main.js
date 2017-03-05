@@ -37,7 +37,6 @@ io.on("connection", function(socket) {
 		//add this client to the group defined by the session id
 		socket.join(sessionId);
 		console.log("added socket " + socket.id + " to group " + sessionId);
-		console.log("peers in group: " + io.sockets.clients(sessionId));
 		session.addUserToSession(sessionId, user);
 		socket.emit("register_response", {
 			"sessionId": sessionId,
@@ -52,7 +51,6 @@ io.on("connection", function(socket) {
 		var sessionId = client.sessionId;
 		socket.join(sessionId);
 		console.log("added socket " + socket.id + " to group " + sessionId);
-		console.log("peers in group: " + io.sockets.clients(sessionId));
 		session.addUserToSession(sessionId, user);
 		update(socket, sessionId);
 	});
