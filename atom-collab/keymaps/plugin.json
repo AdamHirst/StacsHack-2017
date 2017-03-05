@@ -1,5 +1,5 @@
 {
   "atom-workspace": {
-    "ctrl-alt-h": "plugin:host"
+    "ctrl-alt-h": "neutrino:host"
   }
 }
