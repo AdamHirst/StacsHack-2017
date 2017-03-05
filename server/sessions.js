@@ -144,8 +144,14 @@ function updateCursorPositions(sessionId, editingUsername) {
         for (var i = 0; i < session.users.length; i++) {
             if (session.users[i].username == editingUsername) continue;
             cursorPos = session.users[i].cursorPos
+            selectPos = session.users[i].selectionPos
+            if (cursorPos == undefined) continue;
             if (cursorPos.row >= prevCursorPos.row) {
                 cursorPos.row += shift
+                if (selectionPos != undefined) {
+                    selectionPos.start.row += 1
+                    selectionPos.end.row += 1
+                }
             }
         }
     }
