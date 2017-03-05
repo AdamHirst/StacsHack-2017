@@ -1,7 +1,7 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var session = require("./sessions.js")
+var session = require('./sessions.js')
 const util = require('util')
 
 io.on('connection', function(socket){
