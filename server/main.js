@@ -17,6 +17,7 @@ io.on("connection", function(socket) {
 		var sessionId = session.createNewSession(user, filename, fileData, passwd);
 		//add this client to the group defined by the session id
 		socket.join(sessionId)
+		session.addUserToSession(sessionId, user)
 		socket.emit("register_response", {
 			"sessionId": sessionId,
 			"username": user,
@@ -29,12 +30,14 @@ io.on("connection", function(socket) {
 		var user = client.desiredUsername;
 		var sessionId = client.sessionId;
 		socket.join(sessionId)
+		session.addUserToSession(sessionId, user)
 	});
 
 	socket.on("deregister", function(client) {
 		//TODO more checking here
 		console.log("received deregister event from socket (" + socket.id + ")");
 		socket.leave(client.sessionId);
+		//TODO remove from session in sessions package
 	});
 
 	socket.on("request", function(client) {
@@ -47,22 +50,12 @@ io.on("connection", function(socket) {
 			"collaborators": [],
 		};
 		for (username in session.getUsernamesForSession(s.id)) {
+			var cursor = s.sessions[username].cursorPos;
+			var selection = s.sessions[username].selectionPos;
 			data.collaborators.push({
 				"username": username,
-				"cursor": {
-					"row": 0,
-					"col": 0,
-				},
-				"selection": {
-					"start": {
-						"row": 0,
-						"col": 0,
-					},
-					"end": {
-						"row": 0,
-						"col": 0,
-					},
-				},
+				"cursor": cursor,
+				"selection": selection,
 			});
 		}
 		socket.broadcast.to(s.id).emit("update", data);
@@ -80,6 +73,7 @@ io.on("connection", function(socket) {
 		var sessionId = update.sessionId;
 		var s = session.getSessionById(sessionId)
 		s.fileData = fileData;
+		session.setCursorAndSelectionPos(sessionId, user, cursor, selection)
 	});
 });
 
