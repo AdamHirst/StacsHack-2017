@@ -54,14 +54,43 @@ export default {
     }
   },
 
+  handleUpdate() {
+    this.socket.on('update', function(d) {
+      var fileData = d.fileData;
+      var collaborators = d.collaborators; // [] of { username, cursor, selection }
+      var i = 1; // tracks colour
+      for (var c in collaborators) {
+        if (c.username == this.username) {
+          // Update cursor
+          this.editor.setCursorBufferPosition([c.cursor.row, c.cursor.col]);
+        } else {
+          var ml = this.editor.getDefaultMarkerLayer();
+
+          // Show cursor
+          var cursor = ml.markBufferPosition([c.cursor.row, c.cursor.col]);
+          this.editor.decorateMarker(cursor, { type: 'highlight', class: 'cursor-' + i })
+
+          // Show selections
+          var selection = ml.markBufferSelection([
+            [c.selection.start.row, c.selection.start.col],
+            [c.selection.end.row, c.selection.end.col]]);
+          this.editor.decorateMarker(selection, { type: 'highlight', class: 'highlight-cursor-' + i })
+
+          i = (i < 4) ? i++ : 1;
+        }
+      }
+    });
+  },
+
   sendUpdate() {
+    if (!this.socket) return;
     this.socket.emit('update', {
       fileData: this.editor.getText(),
       username: this.username,
       sessionId: this.sessionId,
       cursor: {
-        row: this.editor.getCursorScreenPosition().row,
-        col: this.editor.getCursorScreenPosition().col,
+        row: this.editor.getCursorBufferPosition().row,
+        col: this.editor.getCursorBufferPosition().col,
       },
       selection: {
         start: {
@@ -82,7 +111,7 @@ export default {
     // Register update events
     this.editor.onDidChange(this.sendUpdate);
     this.editor.onDidChangeCursorPosition(this.sendUpdate);
-    this.editor.onDidChangeSelectRange(this.sendUpdate);
+    this.editor.onDidChangeSelectionRange(this.sendUpdate);
   },
 
   hostInstance() {
@@ -90,7 +119,7 @@ export default {
     this.socket = require('socket.io-client')("http://localhost:3000/");
 
     // Setup text editor
-    initiateEditorAsContext();
+    this.initiateEditorAsContext();
 
     // The data to send to the server
     var data = {
@@ -165,9 +194,9 @@ export default {
     // Initiate socket
     this.socket = require('socket.io-client')("http://localhost:3000/");
 
-    // Server does not implement error handling at all, so we implicitly assume the connection is valid
-    //this.socket.on('')
+    this.initiateEditorAsContext();
 
+    // Server does not implement error handling at all, so we implicitly assume the connection is valid
     // Open connection
     this.socket.open();
 

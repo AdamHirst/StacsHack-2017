@@ -16,17 +16,23 @@ export default class JoinView {
     // Textbox
     const codeTextbox = document.createElement('input');
     codeTextbox.type = "text";
-    codeTextbox.className = 'editor mini';
+    codeTextbox.placeholder = "Join Code";
     this.element.appendChild(codeTextbox);
 
+    // Username
+    const usernameTextbox = document.createElement('username');
+    usernameTextbox.type = "text";
+    usernameTextbox.placeholder = "Username";
+    this.element.appendChild(usernameTextbox);
+
     // Buttons
-    const button = document.createElement('button');
-    button.className = 'btn btn-success';
-    button.textContent = 'Join session';
-    button.onclick = function() {
-      submitCallback(codeTextbox.value);
+    const buttonSubmit = document.createElement('button');
+    buttonSubmit.className = 'btn btn-success';
+    buttonSubmit.textContent = 'Join session';
+    buttonSubmit.onclick = function() {
+      submitCallback(codeTextbox.value, usernameTextbox.value);
     }
-    this.element.appendChild(button);
+    this.element.appendChild(buttonSubmit);
   }
 
   serialize() {}
