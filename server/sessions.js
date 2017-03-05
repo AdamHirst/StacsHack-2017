@@ -61,6 +61,10 @@ module.exports = {
     },  
 
     getUserForSession: function(sessionId) {
+        console.log("GEtting userd for session0")
+        console.log(sessionId)
+        console.log(this.getSessionById(sessionId).users)
+
         this.getSessionById(sessionId).users
     },
 

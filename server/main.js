@@ -10,7 +10,6 @@ function update(socket, sessionId) {
 		"collaborators": [],
 	};
 	for (username in session.getUserForSession(sessionId)) {
-        console.log(username)
 		var s = session.getSessionById(sessionId);
 		var cursor = username.cursorPos;
 		var selection = username.selectionPos;
