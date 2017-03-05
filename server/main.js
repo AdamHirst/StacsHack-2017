@@ -13,55 +13,73 @@ io.on("connection", function(socket) {
 		var user = client.desiredUsername;
 		var filename = client.fileName;
 		var passwd = client.password;
-		var sessionId;
-		//if the client also sent a session id then it wants to join the session
-		if (client.hasOwnProperty("sessionId")) {
-			session.addUserToSession(client.sessionId, user);
-			sessionId = client.sessionId;
-		} else
-			sessionId = session.createNewSession(user, filename, "", passwd);
+		var fileData = client.fileData;
+		var sessionId = session.createNewSession(user, filename, fileData, passwd);
 		//add this client to the group defined by the session id
 		socket.join(sessionId)
-		socket.emit('register_response', {
+		socket.emit("register_response", {
 			"sessionId": sessionId,
 			"username": user,
 		});
 	});
 
+	socket.on("join", function(client) {
+		console.log("received join event from socket (" + socket.id + ")");
+		console.log(client);
+		var user = client.desiredUsername;
+		var sessionId = client.sessionId;
+		socket.join(sessionId)
+	});
+
 	socket.on("deregister", function(client) {
 		//TODO more checking here
-		console.log("received deregister from socket (" + socket.id + ")");
+		console.log("received deregister event from socket (" + socket.id + ")");
 		socket.leave(client.sessionId);
 	});
 
 	socket.on("request", function(client) {
 		console.log("received request event from socket (" + socket.id + ")");
 		console.log(client);
-		for (s in session.sessions) {
-			console.log("broadcasting file data to session: " + s.id);
-			data = {"collaborators": []};
-			for (username in session.getUsernamesForSession(s.id)) {
-				data.collaborators[username] = {
-					"fileData": "you big ol' file, you!",
-					"cursor": {
+		var s = session.getSessionById(client.sessionId);
+		console.log("broadcasting file data to session: " + s.id);
+		data = {
+			"fileData": s.fileData,
+			"collaborators": [],
+		};
+		for (username in session.getUsernamesForSession(s.id)) {
+			data.collaborators.push({
+				"username": username,
+				"cursor": {
+					"row": 0,
+					"col": 0,
+				},
+				"selection": {
+					"start": {
 						"row": 0,
 						"col": 0,
 					},
-					"selection": {
-						"start": {
-							"row": 0,
-							"col": 0,
-						},
-						"end": {
-							"row": 0,
-							"col": 0,
-						},
+					"end": {
+						"row": 0,
+						"col": 0,
 					},
-				};
-			}
-			socket.broadcast.to(s.id).emit("update", data);
+				},
+			});
 		}
-		//return null;
+		socket.broadcast.to(s.id).emit("update", data);
+	});
+
+	//when client sends an update
+	socket.on("update", function(update) {
+		console.log("received request event from socket (" + socket.id + ")");
+		console.log(client);
+		var cursor = update.cursor;
+		var selection = update.selection;
+		var user = update.username;
+		var fileData = update.fileData;
+		//TODO prevent smurf attacks
+		var sessionId = update.sessionId;
+		var s = session.getSessionById(sessionId)
+		s.fileData = fileData;
 	});
 });
 
