@@ -80,10 +80,10 @@ module.exports = {
                 user["selectionPos"] = selectionPos
             }
         }
-    }
+    },
 
-    getUsersForSession(sessionId) {
-        this.getSessionById(sessionId).users
+    getUsersForSession: function(sessionId) {
+        return this.getSessionById(sessionId).users
     }
 
 }
