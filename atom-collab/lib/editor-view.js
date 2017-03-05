@@ -4,7 +4,9 @@ export default class EditorView {
 
   constructor(serializedState) {
     this.element = document.createElement('div');
-    this.element.classList.add('plugin');
+
+    const container = document.createElement('div');
+    container.class = "user-container";
 
   }
 

@@ -1,5 +1,5 @@
 'use babel';
-
+// Hello
 import { CompositeDisposable } from 'atom';
 import EditorView from './editor-view';
 import JoinView from './join-view';
@@ -15,10 +15,11 @@ export default {
   joinModalPanel: null,
   editor: null,
   sessionId: null,
+  blocking: false,
 
   activate(state) {
     this.editorView = new EditorView(state.editorViewState);
-    this.joinView = new JoinView(state.joinViewState, this.connectToSession);
+    this.joinView = new JoinView(state.joinViewState, this.connectToSession.bind(this));
 
     this.joinModalPanel = atom.workspace.addModalPanel({
       item: this.joinView.getElement(),
@@ -55,8 +56,20 @@ export default {
   },
 
   handleUpdate() {
-    this.socket.on('update', function(d) {
+    console.log("Registered update handler");
+    this.socket.on('server_update', function(d) {
+      console.log("Update recieved");
+
+      this.blocking = true;
+      console.log("Started blocking updates");
+      window.setTimeout(function() {
+        console.log("Stopped blocking");
+        this.blocking = false;
+      }.bind(this), 100);
+
+      console.log(d);
       var fileData = d.fileData;
+      this.editor.setText(fileData);
       var collaborators = d.collaborators; // [] of { username, cursor, selection }
       var i = 1; // tracks colour
       for (var c in collaborators) {
@@ -79,27 +92,38 @@ export default {
           i = (i < 4) ? i++ : 1;
         }
       }
-    });
+    }.bind(this));
   },
 
   sendUpdate() {
+    if (this.blocking) {
+      console.log("update blocked");
+      return;
+    }
+
+    console.log("sending update:");
+
+    console.log("Global sid: " + this.sessionId + "; username: " + this.username);
+    console.log(this.editor.getCursorBufferPosition().column);
+
     if (!this.socket) return;
+    console.log("socket not null");
     this.socket.emit('update', {
       fileData: this.editor.getText(),
       username: this.username,
       sessionId: this.sessionId,
       cursor: {
         row: this.editor.getCursorBufferPosition().row,
-        col: this.editor.getCursorBufferPosition().col,
+        col: this.editor.getCursorBufferPosition().column,
       },
       selection: {
         start: {
           row: this.editor.getSelectedBufferRange().start.row,
-          col: this.editor.getSelectedBufferRange().start.col,
+          col: this.editor.getSelectedBufferRange().start.column,
         },
         end: {
           row: this.editor.getSelectedBufferRange().end.row,
-          col: this.editor.getSelectedBufferRange().end.col,
+          col: this.editor.getSelectedBufferRange().end.column,
         }
       }
     });
@@ -109,9 +133,9 @@ export default {
     this.editor = atom.workspace.getActiveTextEditor();
 
     // Register update events
-    this.editor.onDidChange(this.sendUpdate);
-    this.editor.onDidChangeCursorPosition(this.sendUpdate);
-    this.editor.onDidChangeSelectionRange(this.sendUpdate);
+    this.editor.onDidChange(this.sendUpdate.bind(this));
+    this.editor.onDidChangeCursorPosition(this.sendUpdate.bind(this));
+    this.editor.onDidChangeSelectionRange(this.sendUpdate.bind(this));
   },
 
   hostInstance() {
@@ -120,6 +144,7 @@ export default {
 
     // Setup text editor
     this.initiateEditorAsContext();
+    this.handleUpdate();
 
     // The data to send to the server
     var data = {
@@ -147,7 +172,7 @@ export default {
                   text: "Copy",
                   onDidClick: function() {
                       atom.clipboard.write(this.sessionId);
-                  }
+                  }.bind(this)
               },
               {
                   text: "Stop hosting",
@@ -159,7 +184,7 @@ export default {
           ]
       });
       //this.editor = atom.
-    });
+    }.bind(this));
 
     // Open the socket
     this.socket.open();
@@ -185,16 +210,20 @@ export default {
 
   // Handles joining a session
   connectToSession(id, username) {
+    console.log("Connecting to session: " + id);
+
+    this.joinModalPanel.hide();
+
     this.sessionId = id;
     this.username = username;
 
-    // Close the panel
-    this.joinModalPanel.hide();
+    console.log("Global sid: " + this.sessionId + "; username: " + this.username);
 
     // Initiate socket
     this.socket = require('socket.io-client')("http://localhost:3000/");
 
     this.initiateEditorAsContext();
+    this.handleUpdate();
 
     // Server does not implement error handling at all, so we implicitly assume the connection is valid
     // Open connection

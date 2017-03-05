@@ -20,7 +20,7 @@ export default class JoinView {
     this.element.appendChild(codeTextbox);
 
     // Username
-    const usernameTextbox = document.createElement('username');
+    const usernameTextbox = document.createElement('input');
     usernameTextbox.type = "text";
     usernameTextbox.placeholder = "Username";
     this.element.appendChild(usernameTextbox);
@@ -30,9 +30,17 @@ export default class JoinView {
     buttonSubmit.className = 'btn btn-success';
     buttonSubmit.textContent = 'Join session';
     buttonSubmit.onclick = function() {
+      this.element.visible = false;
       submitCallback(codeTextbox.value, usernameTextbox.value);
-    }
+    }.bind(this);
     this.element.appendChild(buttonSubmit);
+
+    const buttonCancel = document.createElement('button');
+    buttonCancel.className = "btn btn-success";
+    buttonCancel.textContent = "Cancel"
+    buttonCancel.onclick = function() {
+      this.element.visible = false;
+    }.bind(this);
   }
 
   serialize() {}

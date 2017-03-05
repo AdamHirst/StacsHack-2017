@@ -20,13 +20,13 @@ function update(socket, sessionId) {
 		});
 	}
 	console.log("broadcasting update to group: " + sessionId);
-	socket.broadcast.to(sessionId).emit("update", data);
-	socket.emit("update", data);
+	socket.broadcast.to(sessionId).emit("server_update", data);
+	socket.emit("server_upate", data);
 }
 
 io.on("connection", function(socket) {
 	console.log("user connected (socket ID " + socket.id + ")");
-
+ 
 	socket.on("register", function(client) {
 		console.log("received register event from socket (" + socket.id + ")");
 		console.log(client);
@@ -63,27 +63,28 @@ io.on("connection", function(socket) {
 		//TODO remove from session in sessions package
 	});
 
-	socket.on("request", function(client) {
-		console.log("received request event from socket (" + socket.id + ")");
-		console.log(client);
-		var s = session.getSessionById(client.sessionId);
-		console.log("broadcasting file data to session: " + s.id);
-		update(session, client.sessionId);
-	});
+	// socket.on("request", function(client) {
+	// 	console.log("received request event from socket (" + socket.id + ")");
+	// 	console.log(client);
+	// 	var s = session.getSessionById(client.sessionId);
+	// 	console.log("broadcasting file data to session: " + s.id);
+	// 	update(session, client.sessionId);
+	// });
 
 	//when client sends an update
-	socket.on("update", function(update) {
+	socket.on("update", function(client) {
 		console.log("received request event from socket (" + socket.id + ")");
-		console.log(update);
-		var cursor = update.cursor;
-		var selection = update.selection;
-		var user = update.username;
-		var fileData = update.fileData;
+		console.log(client);
+		var cursor = client.cursor;
+		var selection = client.selection;
+		var user = client.username;
+		var fileData = client.fileData;
 		//TODO prevent smurf attacks
-		var sessionId = update.sessionId;
+		var sessionId = client.sessionId;
 		var s = session.getSessionById(sessionId);
 		s.fileData = fileData;
 		session.setCursorAndSelectionPos(sessionId, user, cursor, selection);
+		update(socket, sessionId);
 	});
 });
 
