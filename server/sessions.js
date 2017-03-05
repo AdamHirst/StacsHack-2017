@@ -128,14 +128,14 @@ function updateCursorPositions(sessionId, editingUsername) {
         currFileLines = session.fileData.split(/\r?\n/)
 
         // If preceeding line is identical, no changes happened
-        if (prevFileLines.length <= prevCursorPos.row - 2) return;
+        if (prevFileLines.length <= prevCursorPos.row + 2) return;
         if (prevFileLines[prevCursorPos.row + 1] == currFileLines[prevCursorPos.row + 1]) return;
 
         // Not identical could imply that a new line was entered
         if (prevFileLines[prevCursorPos.row + 1] == currFileLines[prevCursorPos.row + 2]) {
             // Shifted down by one
             shift = 1;
-        } else if (prevFileLines[prevCursorPos.row + 2] == currFileLines[prevCursorPos.row] + 1) {
+        } else if (prevFileLines[prevCursorPos.row + 2] == currFileLines[prevCursorPos.row + 1]) {
             // Shifted up by one
             shift = -1;
         }
