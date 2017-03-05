@@ -55,6 +55,20 @@ module.exports = {
         return bcrypt.compareSync(plainPassword, this.getSessionById(sessionId).password)
     },
 
+    // Set the cursor and selection positions 
+    // These come straight from atom
+
+    /*
+        cursorPos : {
+            row: int
+            column: int
+        }
+
+        selectionPos : {
+            start: cursorPos,
+            end: cursorPos
+        }
+    */
     setCursorAndSelectionPos: function(sessionId, username, cursorPos, selectionPos) {
         session = this.getSessionById(sessionId)
         if (!session) return null;
