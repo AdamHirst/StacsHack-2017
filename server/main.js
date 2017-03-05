@@ -4,6 +4,24 @@ var io = require('socket.io')(http);
 var session = require('./sessions.js')
 const util = require('util')
 
+function update(socket, sessionId) {
+	data = {
+		"fileData": session.getCurrentFileData(sessionId),
+		"collaborators": [],
+	};
+	for (username in session.getUsernamesForSession(sessionId)) {
+		var s = session.getSessionById(sessionId);
+		var cursor = s.sessions[username].cursorPos;
+		var selection = s.sessions[username].selectionPos;
+		data.collaborators.push({
+			"username": username,
+			"cursor": cursor,
+			"selection": selection,
+		});
+	}
+	socket.broadcast.to(s.id).emit("update", data);
+}
+
 io.on("connection", function(socket) {
 	console.log("user connected (socket ID " + socket.id + ")");
 
@@ -29,9 +47,9 @@ io.on("connection", function(socket) {
 		console.log(client);
 		var user = client.desiredUsername;
 		var sessionId = client.sessionId;
-		socket.join(sessionId)
-		session.addUserToSession(sessionId, user)
-		socket.on("join_response", session.getCurrentFileData(sessionId));
+		socket.join(sessionId);
+		session.addUserToSession(sessionId, user);
+		update(socket, sessionId);
 	});
 
 	socket.on("deregister", function(client) {
@@ -46,20 +64,7 @@ io.on("connection", function(socket) {
 		console.log(client);
 		var s = session.getSessionById(client.sessionId);
 		console.log("broadcasting file data to session: " + s.id);
-		data = {
-			"fileData": s.fileData,
-			"collaborators": [],
-		};
-		for (username in session.getUsernamesForSession(s.id)) {
-			var cursor = s.sessions[username].cursorPos;
-			var selection = s.sessions[username].selectionPos;
-			data.collaborators.push({
-				"username": username,
-				"cursor": cursor,
-				"selection": selection,
-			});
-		}
-		socket.broadcast.to(s.id).emit("update", data);
+		update(session, client.sessionId);
 	});
 
 	//when client sends an update
@@ -72,9 +77,9 @@ io.on("connection", function(socket) {
 		var fileData = update.fileData;
 		//TODO prevent smurf attacks
 		var sessionId = update.sessionId;
-		var s = session.getSessionById(sessionId)
+		var s = session.getSessionById(sessionId);
 		s.fileData = fileData;
-		session.setCursorAndSelectionPos(sessionId, user, cursor, selection)
+		session.setCursorAndSelectionPos(sessionId, user, cursor, selection);
 	});
 });
 
