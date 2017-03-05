@@ -11,8 +11,8 @@ function update(socket, sessionId) {
 	};
 	for (username in session.getUserForSession(sessionId)) {
 		var s = session.getSessionById(sessionId);
-		var cursor = s.sessions[username].cursorPos;
-		var selection = s.sessions[username].selectionPos;
+		var cursor = username.cursorPos;
+		var selection = username.selectionPos;
 		data.collaborators.push({
 			"username": username,
 			"cursor": cursor,
