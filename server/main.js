@@ -31,6 +31,7 @@ io.on("connection", function(socket) {
 		var sessionId = client.sessionId;
 		socket.join(sessionId)
 		session.addUserToSession(sessionId, user)
+		socket.on("join_response", session.getCurrentFileData(sessionId));
 	});
 
 	socket.on("deregister", function(client) {
