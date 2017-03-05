@@ -9,7 +9,7 @@ function update(socket, sessionId) {
 		"fileData": session.getCurrentFileData(sessionId),
 		"collaborators": [],
 	};
-	for (username in session.getUsernamesForSession(sessionId)) {
+	for (username in session.getUserForSession(sessionId)) {
 		var s = session.getSessionById(sessionId);
 		var cursor = s.sessions[username].cursorPos;
 		var selection = s.sessions[username].selectionPos;

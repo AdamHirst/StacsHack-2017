@@ -60,7 +60,7 @@ module.exports = {
         return this.getSessionById(sessionId).fileData
     },  
 
-    getUsernamesForSession: function(sessionId) {
+    getUserForSession: function(sessionId) {
         this.getSessionById(sessionId).users
     },
 
