@@ -19,6 +19,7 @@ function update(socket, sessionId) {
 			"selection": selection,
 		});
 	}
+	console.log("broadcasting update to group: " + sessionId);
 	socket.broadcast.to(sessionId).emit("update", data);
 }
 
@@ -50,6 +51,8 @@ io.on("connection", function(socket) {
 		var user = client.desiredUsername;
 		var sessionId = client.sessionId;
 		socket.join(sessionId);
+		console.log("added socket " + socket.id + " to group " + sessionId);
+		console.log("peers in group: " + io.sockets.clients(sessionId));
 		session.addUserToSession(sessionId, user);
 		update(socket, sessionId);
 	});
