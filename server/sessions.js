@@ -68,5 +68,9 @@ module.exports = {
         }
     }
 
+    getUsersForSession(sessionId) {
+        this.getSessionById(sessionId).users
+    }
+
 }
 
