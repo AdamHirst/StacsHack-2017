@@ -10,7 +10,7 @@ module.exports = {
             "fileName": fileName,
             "password" : bcrypt.hashSync(password),
             "id" : id,
-            "users" : [username]
+            "users" : [{"username" : username}]
         }
 
         sessions.push(session)
@@ -27,7 +27,7 @@ module.exports = {
     },
 
     addUserToSession: function(sessionId, username) {
-        this.getSessionById(sessionId).users.push(username)
+        this.getSessionById(sessionId).users.push({"username" : username})
     },
 
     getUsernamesForSession: function(sessionId) {
@@ -36,6 +36,19 @@ module.exports = {
 
     validPassword: function(sessionId, plainPassword) {
         bcrypt.compareSync(plainPassword, this.getSessionById(sessionId).password)
+    },
+
+    setCursorAndSelectionPos: function(sessionId, username, cursorPos, selectionPos) {
+        session = this.getSessionById(sessionId)
+        if (!session) return null;
+        for (var i = 0; i < session.users.length; i++) {
+            var user = session.users[i]
+
+            if (user.username == username) {
+                user["cursorPos"] = cursorPos
+                user["selectionPos"] = selectionPos
+            }
+        }
     }
 
 }
