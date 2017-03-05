@@ -1,14 +1,14 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var app = require("express")();
+var http = require("http").Server(app);
+var io = require("socket.io")(http);
 
-io.on('connection', function(socket){
-  console.log('a user connected');
-  socket.on('register', function() {
-  	console.log('register recieved');
+io.on("connection", function(socket){
+  console.log("a user connected");
+  socket.on("register", function() {
+  	console.log("register recieved");
   });
 });
 
 http.listen(3000, function(){
-  console.log('listening on *:3000');
+  console.log("listening on *:3000");
 });
