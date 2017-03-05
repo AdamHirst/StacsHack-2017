@@ -39,7 +39,7 @@ export default {
     }));
     this.subscriptions.add(atom.commands.add('atom-workspace', {
       'neutrino:leave': () => this.leaveSession()
-    }))
+    }));
   },
 
   deactivate() {
@@ -51,6 +51,36 @@ export default {
       editorViewState: this.editorView.serialize(),
       joinViewState: this.joinView.serialize()
     }
+  },
+
+  sendUpdate() {
+    this.socket.emit('update', {
+      fileData: this.editor.getText(),
+      username: this.username,
+      cursor: {
+        row: this.editor.getCursorScreenPosition().row,
+        col: this.editor.getCursorScreenPosition().col,
+      },
+      selection: {
+        start: {
+          row: this.editor.getSelectedBufferRange().start.row,
+          col: this.editor.getSelectedBufferRange().start.col,
+        },
+        end: {
+          row: this.editor.getSelectedBufferRange().end.row,
+          col: this.editor.getSelectedBufferRange().end.col,
+        }
+      }
+    });
+  },
+
+  initiateEditorAsContext() {
+    this.editor = atom.workspace.getActiveTextEditor();
+
+    // Register update events
+    this.editor.onDidChange(this.sendUpdate);
+    this.editor.onDidChangeCursorPosition(this.sendUpdate);
+    this.editor.onDidChangeSelectRange(this.sendUpdate);
   },
 
   hostInstance() {
@@ -94,6 +124,7 @@ export default {
       });
 
       // Setup text editor
+      initiateEditorAsContext();
       //this.editor = atom.
     });
 
@@ -120,8 +151,14 @@ export default {
   },
 
   // Handles joining a session
-  connectToSession(id) {
+  connectToSession(id, username) {
     // Close the panel
+    this.joinModalPanel.hide();
+
+    // Initiate socket
+    this.socket = require('socket.io-client')("http://localhost:3000/");
+
+    // Open connection
   },
 
   leaveSession() {
