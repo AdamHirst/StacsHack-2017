@@ -81,6 +81,10 @@ module.exports = {
     setCursorAndSelectionPos: function(sessionId, username, cursorPos, selectionPos) {
         session = this.getSessionById(sessionId)
         if (!session) return null;
+        
+        session["prevCursorPos"] = session["cursorPos"]
+        session["prevSelectionPos"] = session["prevSelectionPos"]
+
         for (var i = 0; i < session.users.length; i++) {
             var user = session.users[i]
 
@@ -94,6 +98,58 @@ module.exports = {
     getUsersForSession: function(sessionId) {
         return this.getSessionById(sessionId).users
     }
-
 }
+
+function updateCursorPositions(sessionId, editingUsername) {
+    session = getSessionById(sessionId)
+    if (session["prevFileData"] == undefined) return;
+    var users = session.users
+    var user;
+    for (var i = 0; i < users.length; i++) {
+        if (users[i].username == editingUsername) user = users[i] 
+    }
+
+    if (user == undefined) return;
+
+    prevCursorPos = user["prevCursorPos"]
+    prevSelectionPos = user["prevSelectionPos"]
+
+    if (prevCursorPos == undefined) return;
+    var shift;
+
+    if (prevSelectionPos != undefined) {
+        // Previously a selection
+        // Selections are more dangerous as the could have deleted a larger body of 
+        // text at once
+        // TODO implement
+    } else {
+        // Worst possible situation = user entered/removed new line character
+        prevFileLines = session.prevFileData.split(/\r?\n/)
+        currFileLines = session.fileData.split(/\r?\n/)
+
+        // If preceeding line is identical, no changes happened
+        if (prevFileLines.length <= prevCursorPos.row - 2) return;
+        if (prevFileLines[prevCursorPos.row + 1] == currFileLines[prevCursorPos.row + 1]) return;
+
+        // Not identical could imply that a new line was entered
+        if (prevFileLines[prevCursorPos.row + 1] == currFileLines[prevCursorPos.row + 2]) {
+            // Shifted down by one
+            shift = 1;
+        } else if (prevFileLines[prevCursorPos.row + 2] == currFileLines[prevCursorPos.row] + 1) {
+            // Shifted up by one
+            shift = -1;
+        }
+
+        // Actual shift relavent cursors
+        for (var i = 0; i < session.users.length; i++) {
+            if (session.users[i].username == editingUsername) continue;
+            cursorPos = session.users[i].cursorPos
+            if (cursorPos.row >= prevCursorPos.row) {
+                cursorPos.row += shift
+            }
+        }
+    }
+}
+
+
 
