@@ -4,13 +4,14 @@ var ranstr = require("randomstring")
 var sessions = [];
 
 module.exports = {
-    createNewSession: function(username, fileName, password) {
+    createNewSession: function(username, fileName, fileData, password) {
         var id = ranstr.generate(7)
         session = {
             "fileName": fileName,
             "password" : bcrypt.hashSync(password),
             "id" : id,
-            "users" : [{"username" : username}]
+            "users" : [{"username" : username}],
+            "fileData" : fileData
         }
 
         sessions.push(session)
